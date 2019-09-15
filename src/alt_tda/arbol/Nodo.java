@@ -1,4 +1,4 @@
-package alt_tda_arbol;
+package alt_tda.arbol;
 
 /**
  *
