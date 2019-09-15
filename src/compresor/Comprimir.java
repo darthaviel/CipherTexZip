@@ -2,6 +2,7 @@ package compresor;
 
 import alt_tda.lista.LISTA;
 import alt_tda.arbol.ARBOL;
+import alt_tda.pila.PILA;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,9 +17,10 @@ public class Comprimir {
 
     LISTA organizador = new LISTA();
     ARBOL huffmantree = new ARBOL();
+    char[] text = new char[0];
+    String huffmantextcode = "";
 
     public void Comprimir(File archivo) {
-        char[] text = new char[0];
         try {
             String name = archivo.getName();
             text = Files.readString(archivo.toPath()).toCharArray();
@@ -33,6 +35,10 @@ public class Comprimir {
         }
 
         construirHuffmanTree();
+
+        generarCodigoHuffman();
+
+        cambiarTextoAHuffman();
 
     }
 
@@ -81,6 +87,55 @@ public class Comprimir {
             organizador.SUPRIME(menor);
             organizador.INSERTA(ponderador, menor);
             organizador.SUPRIME(antemenor);
+        }
+    }
+
+    private void generarCodigoHuffman() {
+        PILA pila = new PILA();
+        LISTA huffmancode = new LISTA();
+        boolean regresa = false;
+        pila.METE(huffmantree.RAIZ());
+        organizador.ANULA();
+        while (!pila.VACIA()) {
+            if ((huffmantree.HIJO_MAS_IZQ((Integer) pila.TOPE()) == -1) || regresa) {
+                if (huffmantree.HIJO_MAS_IZQ((Integer) pila.TOPE()) == -1) {
+                    String huffmanc = "";
+                    for (int i = huffmancode.PRIMERO(); i < huffmancode.FIN(); i++) {
+                        huffmanc = huffmancode.RECUPERA(i) + huffmanc;
+                    }
+
+                    organizador.INSERTA(new Equivalencia(((Character) huffmantree.ETIQUETA((Integer) pila.TOPE())), huffmanc), organizador.FIN());
+                }
+
+                if (huffmantree.HERMANO_DER((Integer) pila.TOPE()) != -1) {
+                    int a = huffmantree.HERMANO_DER((Integer) pila.TOPE());
+                    pila.SACA();
+                    huffmancode.SUPRIME(huffmancode.PRIMERO());
+                    pila.METE(a);
+                    huffmancode.INSERTA('1', huffmancode.PRIMERO());
+                    regresa = false;
+                } else {
+                    pila.SACA();
+                    huffmancode.SUPRIME(huffmancode.PRIMERO());
+                    regresa = true;
+                }
+            } else {
+                pila.METE(huffmantree.HIJO_MAS_IZQ((Integer) pila.TOPE()));
+                huffmancode.INSERTA('0', huffmancode.PRIMERO());
+                regresa = false;
+
+            }
+        }
+    }
+
+    private void cambiarTextoAHuffman() {
+        for (char caracter : text) {
+            for (int i = organizador.PRIMERO(); i < organizador.FIN(); i++) {
+                if (((Equivalencia) organizador.RECUPERA(i)).getCaracter() == caracter) {
+                    huffmantextcode = huffmantextcode + ((Equivalencia) organizador.RECUPERA(i)).getCodigoHuffman();
+                    break;
+                }
+            }
         }
     }
 
