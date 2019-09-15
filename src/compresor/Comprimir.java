@@ -1,7 +1,7 @@
 package compresor;
 
 import alt_tda.lista.LISTA;
-import arbol.ARBOL;
+import alt_tda.arbol.ARBOL;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
