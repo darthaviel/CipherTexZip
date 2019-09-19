@@ -19,6 +19,7 @@ public class Comprimir {
     ARBOL huffmantree = new ARBOL();
     char[] text = new char[0];
     String huffmantextcode = "";
+    String arbol = "";
 
     public void Comprimir(File archivo) {
         try {
@@ -96,6 +97,7 @@ public class Comprimir {
         boolean regresa = false;
         pila.METE(huffmantree.RAIZ());
         organizador.ANULA();
+
         while (!pila.VACIA()) {
             if ((huffmantree.HIJO_MAS_IZQ((Integer) pila.TOPE()) == -1) || regresa) {
                 if (huffmantree.HIJO_MAS_IZQ((Integer) pila.TOPE()) == -1) {
@@ -103,7 +105,7 @@ public class Comprimir {
                     for (int i = huffmancode.PRIMERO(); i < huffmancode.FIN(); i++) {
                         huffmanc = huffmancode.RECUPERA(i) + huffmanc;
                     }
-
+                    arbol = arbol + "1" + ((Character) huffmantree.ETIQUETA((Integer) pila.TOPE()));
                     organizador.INSERTA(new Equivalencia(((Character) huffmantree.ETIQUETA((Integer) pila.TOPE())), huffmanc), organizador.FIN());
                 }
 
@@ -113,6 +115,7 @@ public class Comprimir {
                     huffmancode.SUPRIME(huffmancode.PRIMERO());
                     pila.METE(a);
                     huffmancode.INSERTA('1', huffmancode.PRIMERO());
+                    arbol = arbol +"0";
                     regresa = false;
                 } else {
                     pila.SACA();
@@ -123,6 +126,7 @@ public class Comprimir {
                 pila.METE(huffmantree.HIJO_MAS_IZQ((Integer) pila.TOPE()));
                 huffmancode.INSERTA('0', huffmancode.PRIMERO());
                 regresa = false;
+                arbol = arbol+"0";
 
             }
         }
