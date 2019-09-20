@@ -35,9 +35,19 @@ public class Comprimir {
             }
         }
 
+        //mostrar equivalencias
+        for (int i = 1; i < organizador.FIN(); i++) {
+            System.out.println((Ponderador) organizador.RECUPERA(i));
+        }
+
         construirHuffmanTree();
 
         generarCodigoHuffman();
+
+        //ver codigo huffman
+        for (int i = 1; i < organizador.FIN(); i++) {
+            System.out.println((Equivalencia) organizador.RECUPERA(i));
+        }
 
         cambiarTextoAHuffman();
 
@@ -65,7 +75,7 @@ public class Comprimir {
             organizador.INSERTA(ponderador, i);
         }
 
-        while (organizador.FIN() != organizador.ANTERIOR(organizador.FIN())) {
+        while (organizador.ANTERIOR(organizador.FIN()) != organizador.PRIMERO()) {
             int menor = organizador.PRIMERO();
             int antemenor = organizador.SIGUIENTE(menor);
             if (((Ponderador) organizador.RECUPERA(menor)).getCantidad() > ((Ponderador) organizador.RECUPERA(antemenor)).getCantidad()) {
@@ -76,18 +86,24 @@ public class Comprimir {
             for (int i = 3; i < organizador.FIN(); i++) {
                 if (((Ponderador) organizador.RECUPERA(antemenor)).getCantidad() > ((Ponderador) organizador.RECUPERA(i)).getCantidad()) {
                     antemenor = i;
-                } else {
-                    if (((Ponderador) organizador.RECUPERA(menor)).getCantidad() > ((Ponderador) organizador.RECUPERA(i)).getCantidad()) {
-                        antemenor = menor;
-                        menor = i;
-                    }
                 }
+                if (((Ponderador) organizador.RECUPERA(menor)).getCantidad() > ((Ponderador) organizador.RECUPERA(antemenor)).getCantidad()) {
+                    int rmenor = antemenor;
+                    antemenor = menor;
+                    menor = rmenor;
+                }
+
+            }
+            if (((Ponderador) organizador.RECUPERA(menor)).getCantidad() == ((Ponderador) organizador.RECUPERA(antemenor)).getCantidad()) {
+                int rmenor = antemenor;
+                antemenor = menor;
+                menor = rmenor;
             }
             Ponderador ponderador = (Ponderador) organizador.RECUPERA(menor);
             ponderador = new Ponderador(huffmantree.CREA(null, ((Integer) ((Ponderador) organizador.RECUPERA(menor)).getDato()), ((Integer) ((Ponderador) organizador.RECUPERA(antemenor)).getDato())), ((Ponderador) organizador.RECUPERA(menor)).getCantidad() + ((Ponderador) organizador.RECUPERA(antemenor)).getCantidad());
-            organizador.SUPRIME(menor);
-            organizador.INSERTA(ponderador, menor);
             organizador.SUPRIME(antemenor);
+            organizador.INSERTA(ponderador, antemenor);
+            organizador.SUPRIME(menor);
         }
     }
 
@@ -99,6 +115,7 @@ public class Comprimir {
         organizador.ANULA();
 
         while (!pila.VACIA()) {
+            System.out.println("i - 102");
             if ((huffmantree.HIJO_MAS_IZQ((Integer) pila.TOPE()) == -1) || regresa) {
                 if (huffmantree.HIJO_MAS_IZQ((Integer) pila.TOPE()) == -1) {
                     String huffmanc = "";
@@ -115,18 +132,23 @@ public class Comprimir {
                     huffmancode.SUPRIME(huffmancode.PRIMERO());
                     pila.METE(a);
                     huffmancode.INSERTA('1', huffmancode.PRIMERO());
-                    arbol = arbol +"0";
+                    arbol = arbol + "0";
                     regresa = false;
                 } else {
                     pila.SACA();
-                    huffmancode.SUPRIME(huffmancode.PRIMERO());
+                    if (!huffmancode.VACIA()) {
+                        huffmancode.SUPRIME(huffmancode.PRIMERO());
+                    } else {
+                        System.out.println("vacia");
+                        System.out.println(pila.VACIA());
+                    }
                     regresa = true;
                 }
             } else {
                 pila.METE(huffmantree.HIJO_MAS_IZQ((Integer) pila.TOPE()));
                 huffmancode.INSERTA('0', huffmancode.PRIMERO());
                 regresa = false;
-                arbol = arbol+"0";
+                arbol = arbol + "0";
 
             }
         }

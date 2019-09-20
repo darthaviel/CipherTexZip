@@ -29,6 +29,12 @@ public class Ponderador {
     public void setCantidad(long cantidad) {
         this.cantidad = cantidad;
     }
+
+    @Override
+    public String toString() {
+        return "Ponderador{" + "dato=" + dato + ", cantidad=" + cantidad + '}';
+    }
+    
     
 
 }

@@ -1,5 +1,6 @@
 package gui;
 
+import compresor.Comprimir;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -10,9 +11,11 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.util.List;
 import java.util.Optional;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -27,11 +30,14 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -45,6 +51,8 @@ public class MainGUI extends Application {
     private TextArea text;
     private long textSize = 0;
     File mainFile;
+    File ciphertexzipfile;
+    Comprimir compresor = new Comprimir();
 
     public void MainGUI() {
         launch();
@@ -89,9 +97,62 @@ public class MainGUI extends Application {
         texzip.setTop(texzip_menubar);
         texzip.setBottom(choosefile);
         texzip.setCenter(dragfile);
+        dragfile.setMinWidth(texzip.getWidth());
+        dragfile.setMinHeight(texzip.getHeight());
 
         Tab texziptab = new Tab("CipherTexZip");
-        texziptab.setContent(texzip);
+        texziptab.setContent(texzip);;
+
+        dragfile.setOnDragOver(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                System.out.println("over");
+                if (event.getGestureSource() != dragfile.getText()
+                        && event.getDragboard().hasString()) {
+                    dragfile.setTextFill(Color.GRAY);
+                    event.acceptTransferModes(TransferMode.ANY);
+                }
+                event.consume();
+            }
+        }
+        );
+
+        dragfile.setOnDragExited(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                System.out.println("exited");
+                dragfile.setTextFill(Color.BLACK);
+
+                event.consume();
+            }
+        }
+        );
+
+        dragfile.setOnDragDropped(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                System.out.println("dropped");
+                Dragboard db = event.getDragboard();
+                System.out.println(db.hasFiles());
+                if (db.hasFiles()) {
+                    List<File> l = db.getFiles();
+                    if (l.get(l.size()-1).getName().endsWith(".txt") || l.get(l.size()-1).getName().endsWith(".jj")) {
+                        ciphertexzipfile = l.get(l.size()-1);
+                        //provicional
+                        System.out.println("file recived - 134");
+                        Platform.runLater(() -> compresor.Comprimir(ciphertexzipfile));
+                    }
+                }
+                
+                event.setDropCompleted(true);
+                event.consume();
+            }
+        });
+
+        dragfile.setOnDragDone(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                System.out.println("lets see");
+                event.consume();
+            }
+        }
+        );
 
         //JEdit
         Menu fileMenu = new Menu("Archivo");

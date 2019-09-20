@@ -22,4 +22,11 @@ private String codigoHuffman;
         return codigoHuffman;
     }
 
+    @Override
+    public String toString() {
+        return "Equivalencia{" + "caracter=" + caracter + ", codigoHuffman=" + codigoHuffman + '}';
+    }
+    
+    
+
 }
