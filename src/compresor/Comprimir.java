@@ -1,5 +1,6 @@
 package compresor;
 
+import abstra.BitByteAbstraction;
 import alt_tda.lista.LISTA;
 import alt_tda.arbol.ARBOL;
 import alt_tda.pila.PILA;
@@ -18,8 +19,10 @@ public class Comprimir {
     LISTA organizador = new LISTA();
     ARBOL huffmantree = new ARBOL();
     char[] text = new char[0];
+    String hash = "";
     String huffmantextcode = "";
     String arbol = "";
+    BitByteAbstraction bitbyteconv = new BitByteAbstraction();
 
     public void Comprimir(File archivo) {
         try {
@@ -50,6 +53,13 @@ public class Comprimir {
         }
 
         cambiarTextoAHuffman();
+
+        System.out.println(arbol);
+        System.out.println(huffmantextcode);
+
+        prepararArbol();
+
+        prepararBytes();
 
     }
 
@@ -115,14 +125,13 @@ public class Comprimir {
         organizador.ANULA();
 
         while (!pila.VACIA()) {
-            System.out.println("i - 102");
             if ((huffmantree.HIJO_MAS_IZQ((Integer) pila.TOPE()) == -1) || regresa) {
                 if (huffmantree.HIJO_MAS_IZQ((Integer) pila.TOPE()) == -1) {
                     String huffmanc = "";
                     for (int i = huffmancode.PRIMERO(); i < huffmancode.FIN(); i++) {
                         huffmanc = huffmancode.RECUPERA(i) + huffmanc;
                     }
-                    arbol = arbol + "1" + ((Character) huffmantree.ETIQUETA((Integer) pila.TOPE()));
+                    arbol = arbol.substring(0, arbol.length() - 1) + "1" + ((Character) huffmantree.ETIQUETA((Integer) pila.TOPE()));
                     organizador.INSERTA(new Equivalencia(((Character) huffmantree.ETIQUETA((Integer) pila.TOPE())), huffmanc), organizador.FIN());
                 }
 
@@ -163,6 +172,23 @@ public class Comprimir {
                 }
             }
         }
+    }
+
+    private void prepararArbol() {
+        String bittree = "";
+        for (int i = 0; i < arbol.length(); i++) {
+            bittree = bittree + arbol.charAt(i);
+            if (arbol.charAt(i) == '1') {
+                i++;
+                bittree = bitbyteconv.toBitStr((byte) arbol.charAt(i));
+            }
+        }
+        arbol = bittree;
+    }
+
+    private void prepararBytes() {
+        int nbit = (4 + arbol.length() + huffmantextcode.length() + hash.length())%8;
+        arbol = arbol + bitbyteconv.intToExactBit(3, nbit);
     }
 
 }
