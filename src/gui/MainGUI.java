@@ -79,6 +79,7 @@ public class MainGUI extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         this.stage = stage;
+        texzip = new BorderPane();
 
         //configuracion comprecion
         Label comprimirpath = new Label("Comprimir");
@@ -93,6 +94,10 @@ public class MainGUI extends Application {
                 fileChooser.setTitle("Abrir archivo");
                 fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT", "*.txt"));
                 ciphertexzipfile = fileChooser.showOpenDialog(stage);
+                if (ciphertexzipfile == null) {
+                    return;
+                }
+                comprimirpath.setText(ciphertexzipfile.getPath());
 
             }
         });
@@ -103,6 +108,11 @@ public class MainGUI extends Application {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("Guardar");
                 fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("JJ", "*.jj"));
+                ciphertexzipfileout = fileChooser.showSaveDialog(stage);
+                if (ciphertexzipfileout == null) {
+                    return;
+                }
+                comprimirguardarpath.setText(ciphertexzipfileout.getPath());
             }
         }
         );
@@ -113,6 +123,7 @@ public class MainGUI extends Application {
         destinocom.setSpacing(15);
         confcomp = new VBox(origencom, destinocom);
         confcomp.setSpacing(20);
+        Button startcomp = new Button("Iniciar");
 
         //CipherTexZip
         Menu archivo = new Menu("Archivo");
@@ -156,7 +167,6 @@ public class MainGUI extends Application {
         });
         Label dragfile = new Label("Arrastre el archivo");
 
-        texzip = new BorderPane();
         texzip.setTop(texzip_menubar);
         texzip.setBottom(choosefile);
         texzip.setCenter(dragfile);
@@ -164,7 +174,16 @@ public class MainGUI extends Application {
         dragfile.setMinHeight(texzip.getHeight());
 
         Tab texziptab = new Tab("CipherTexZip");
-        texziptab.setContent(texzip);;
+        texziptab.setContent(texzip);
+
+        startcomp.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent a) {
+                compresor.Comprimir(ciphertexzipfile, ciphertexzipfileout);
+                texzip.setBottom(choosefile);
+                texzip.setCenter(dragfile);
+            }
+        });
 
         dragfile.setOnDragOver(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
@@ -203,6 +222,7 @@ public class MainGUI extends Application {
                         Platform.runLater(() -> origenpathcom.setText(ciphertexzipfile.getPath()));
                         Platform.runLater(() -> destinopathcom.setText(ciphertexzipfile.getPath().replace(".txt", ".jj")));
                         Platform.runLater(() -> texzip.setCenter(confcomp));
+                        Platform.runLater(() -> texzip.setBottom(startcomp));
                     }
                 }
 

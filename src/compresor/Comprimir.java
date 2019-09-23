@@ -5,6 +5,8 @@ import alt_tda.lista.LISTA;
 import alt_tda.arbol.ARBOL;
 import alt_tda.pila.PILA;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.logging.Level;
@@ -21,10 +23,12 @@ public class Comprimir {
     char[] text = new char[0];
     String hash = "";
     String huffmantextcode = "";
-    String arbol = "";
+    String arbol = "0";
     BitByteAbstraction bitbyteconv = new BitByteAbstraction();
+    File guardar;
 
-    public void Comprimir(File archivo) {
+    public void Comprimir(File archivo, File archivo1) {
+        this.guardar = archivo1;
         try {
             String name = archivo.getName();
             text = Files.readString(archivo.toPath()).toCharArray();
@@ -60,6 +64,10 @@ public class Comprimir {
         prepararArbol();
 
         prepararBytes();
+
+        escribirArchivo();
+
+        limpiar();
 
     }
 
@@ -187,10 +195,40 @@ public class Comprimir {
     }
 
     private void prepararBytes() {
-        int nbit = (4 + arbol.length() + huffmantextcode.length() + hash.length())%8;
-        arbol = arbol + bitbyteconv.intToExactBit(3, nbit);
+        int nbit = (4 + arbol.length() + huffmantextcode.length() + hash.length()) % 8;
+        arbol = arbol + bitbyteconv.intToExactBit(3, nbit) + huffmantextcode;
     }
-    
-    
+
+    private void escribirArchivo() {
+        try {
+            FileOutputStream write = new FileOutputStream(guardar.getPath());
+            while (true) {
+                if (arbol.length() > 8) {
+                    write.write(bitbyteconv.toByte(arbol.substring(0, 7)));
+                    arbol = arbol.substring(8);
+                } else {
+                    write.write(bitbyteconv.toByte(arbol));
+                    arbol = "";
+                    break;
+                }
+            }
+            write.flush();
+            write.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Comprimir.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Comprimir.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void limpiar() {
+        organizador.VACIA();
+        huffmantree.ANULA();
+        text = new char[0];
+        hash = "";
+        huffmantextcode = "";
+        arbol = "0";
+        guardar = null;
+    }
 
 }
