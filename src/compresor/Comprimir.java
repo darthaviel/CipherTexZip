@@ -190,5 +190,7 @@ public class Comprimir {
         int nbit = (4 + arbol.length() + huffmantextcode.length() + hash.length())%8;
         arbol = arbol + bitbyteconv.intToExactBit(3, nbit);
     }
+    
+    
 
 }

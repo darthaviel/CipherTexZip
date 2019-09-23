@@ -51,5 +51,5 @@ public class BitByteAbstraction {
         }
         return i;
     }
-
+    
 }

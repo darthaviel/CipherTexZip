@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -30,6 +31,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
@@ -37,6 +39,8 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -47,12 +51,26 @@ import javafx.stage.Stage;
  */
 public class MainGUI extends Application {
 
-    private Stage primary;
+    private Stage stage;
     private TextArea text;
     private long textSize = 0;
     File mainFile;
     File ciphertexzipfile;
+    File ciphertexzipfileout;
+    //FileChooser fileChooser = new FileChooser();
     Comprimir compresor = new Comprimir();
+    Tab jedit = new Tab("JEdit");
+    VBox confcomp;
+    VBox compsc;
+    VBox comps;
+    VBox compt;
+
+    TextField origenpathcom;
+    TextField destinopathcom;
+
+    BorderPane texzip;
+
+    Button startcomp;
 
     public void MainGUI() {
         launch();
@@ -60,6 +78,41 @@ public class MainGUI extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        this.stage = stage;
+
+        //configuracion comprecion
+        Label comprimirpath = new Label("Comprimir");
+        Label comprimirguardarpath = new Label("Guardar");
+        origenpathcom = new TextField("");
+        destinopathcom = new TextField("");
+        Button chooseorigencom = new Button("Navegar");
+        chooseorigencom.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent s) {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Abrir archivo");
+                fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT", "*.txt"));
+                ciphertexzipfile = fileChooser.showOpenDialog(stage);
+
+            }
+        });
+        Button choosedestinationcom = new Button("Navegar");
+        choosedestinationcom.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Guardar");
+                fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("JJ", "*.jj"));
+            }
+        }
+        );
+
+        HBox origencom = new HBox(comprimirpath, origenpathcom, chooseorigencom);
+        HBox destinocom = new HBox(comprimirguardarpath, destinopathcom, choosedestinationcom);
+        origencom.setSpacing(15);
+        destinocom.setSpacing(15);
+        confcomp = new VBox(origencom, destinocom);
+        confcomp.setSpacing(20);
 
         //CipherTexZip
         Menu archivo = new Menu("Archivo");
@@ -91,9 +144,19 @@ public class MainGUI extends Application {
         );
 
         Button choosefile = new Button("Seleccionar archivo");
+        choosefile.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent s) {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Abrir archivo");
+                fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT", "*.txt"));
+                ciphertexzipfile = fileChooser.showOpenDialog(stage);
+
+            }
+        });
         Label dragfile = new Label("Arrastre el archivo");
 
-        BorderPane texzip = new BorderPane();
+        texzip = new BorderPane();
         texzip.setTop(texzip_menubar);
         texzip.setBottom(choosefile);
         texzip.setCenter(dragfile);
@@ -133,14 +196,16 @@ public class MainGUI extends Application {
                 System.out.println(db.hasFiles());
                 if (db.hasFiles()) {
                     List<File> l = db.getFiles();
-                    if (l.get(l.size()-1).getName().endsWith(".txt") || l.get(l.size()-1).getName().endsWith(".jj")) {
-                        ciphertexzipfile = l.get(l.size()-1);
+                    if (l.get(l.size() - 1).getName().endsWith(".txt") || l.get(l.size() - 1).getName().endsWith(".jj")) {
+                        ciphertexzipfile = l.get(l.size() - 1);
                         //provicional
-                        System.out.println("file recived - 134");
-                        Platform.runLater(() -> compresor.Comprimir(ciphertexzipfile));
+                        //Platform.runLater(() -> compresor.Comprimir(ciphertexzipfile));
+                        Platform.runLater(() -> origenpathcom.setText(ciphertexzipfile.getPath()));
+                        Platform.runLater(() -> destinopathcom.setText(ciphertexzipfile.getPath().replace(".txt", ".jj")));
+                        Platform.runLater(() -> texzip.setCenter(confcomp));
                     }
                 }
-                
+
                 event.setDropCompleted(true);
                 event.consume();
             }
@@ -155,6 +220,8 @@ public class MainGUI extends Application {
         );
 
         //JEdit
+        Tab jedit = new Tab("JEdit");
+
         Menu fileMenu = new Menu("Archivo");
         MenuItem newMenuItem = new MenuItem("Nuevo");
         MenuItem openMenuItem = new MenuItem("Abrir...");
@@ -258,7 +325,8 @@ public class MainGUI extends Application {
             }
 
             text.setText("");
-            primary.setTitle("JEdit");
+            jedit.setText("JEdit");
+            //primary.setTitle("JEdit");
             textSize = 0;
             mainFile = null;
         });
@@ -283,10 +351,9 @@ public class MainGUI extends Application {
 
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Abrir archivo");
-            fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT", "*.txt")
-            );
+            fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT", "*.txt"));
 
-            File file = fileChooser.showOpenDialog(primary);
+            File file = fileChooser.showOpenDialog(stage);
 
             if (file == null) {
                 return;
@@ -294,7 +361,8 @@ public class MainGUI extends Application {
 
             mainFile = file;
 
-            primary.setTitle("JEdit | " + file.getName());
+            jedit.setText("JEdit | " + file.getName());
+            //primary.setTitle("JEdit | " + file.getName());
             try ( BufferedReader br = new BufferedReader(new FileReader(file))) {
                 StringBuilder sb = new StringBuilder();
                 String line = br.readLine();
@@ -330,13 +398,11 @@ public class MainGUI extends Application {
         selectAllMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.A, KeyCombination.CONTROL_DOWN));
         deleteMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
 
-        Tab jedit = new Tab("JEdit");
         jedit.setContent(rootjedit);
 
         //union
         TabPane root = new TabPane(texziptab, jedit);
         root.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
-
         Scene scene = new Scene(root, 800, 550);
         stage.setScene(scene);
         stage.show();
@@ -360,7 +426,7 @@ public class MainGUI extends Application {
 
         fileChooser.setTitle("Guardar archivo");
 
-        File file = fileChooser.showSaveDialog(primary);
+        File file = fileChooser.showSaveDialog(stage);
 
         if (file == null) {
             return;
@@ -371,7 +437,8 @@ public class MainGUI extends Application {
     }
 
     private void saveFile(File file) {
-        primary.setTitle("JEdit | " + file.getName());
+        jedit.setText("JEdit | " + file.getName());
+        //primary.setTitle("JEdit | " + file.getName());
 
         textSize = text.getText().length();
 
