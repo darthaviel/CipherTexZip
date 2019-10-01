@@ -18,14 +18,14 @@ import java.util.logging.Logger;
  */
 public class Comprimir {
 
-    LISTA organizador = new LISTA();
-    ARBOL huffmantree = new ARBOL();
-    char[] text = new char[0];
-    String hash = "";
-    String huffmantextcode = "";
-    String arbol = "0";
-    BitByteAbstraction bitbyteconv = new BitByteAbstraction();
-    File guardar;
+    private LISTA organizador = new LISTA();
+    private ARBOL huffmantree = new ARBOL();
+    private char[] text = new char[0];
+    private String hash = "";
+    private String huffmantextcode = "";
+    private String arbol = "0";
+    private BitByteAbstraction bitbyteconv = new BitByteAbstraction();
+    private File guardar;
 
     public void Comprimir(File archivo, File archivo1) {
         this.guardar = archivo1;

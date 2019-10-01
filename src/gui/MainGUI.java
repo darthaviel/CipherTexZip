@@ -86,6 +86,8 @@ public class MainGUI extends Application {
         Label comprimirguardarpath = new Label("Guardar");
         origenpathcom = new TextField("");
         destinopathcom = new TextField("");
+        origenpathcom.setDisable(true);
+        destinopathcom.setDisable(true);
         Button chooseorigencom = new Button("Navegar");
         chooseorigencom.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -456,6 +458,9 @@ public class MainGUI extends Application {
 
         if (file == null) {
             return;
+        }
+        if (!file.getName().endsWith(".txt")) {
+            file = new File(file.getPath() + ".txt");
         }
         mainFile = file;
 
