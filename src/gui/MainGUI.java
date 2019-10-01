@@ -97,7 +97,7 @@ public class MainGUI extends Application {
                 if (ciphertexzipfile == null) {
                     return;
                 }
-                comprimirpath.setText(ciphertexzipfile.getPath());
+                origenpathcom.setText(ciphertexzipfile.getPath());
 
             }
         });
@@ -112,7 +112,7 @@ public class MainGUI extends Application {
                 if (ciphertexzipfileout == null) {
                     return;
                 }
-                comprimirguardarpath.setText(ciphertexzipfileout.getPath());
+                destinopathcom.setText(ciphertexzipfileout.getPath());
             }
         }
         );
@@ -160,9 +160,16 @@ public class MainGUI extends Application {
             public void handle(ActionEvent s) {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("Abrir archivo");
-                fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT", "*.txt"));
+                fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("txt", "*.txt"));
                 ciphertexzipfile = fileChooser.showOpenDialog(stage);
-
+                if (ciphertexzipfile == null) {
+                    return;
+                }
+                origenpathcom.setText(ciphertexzipfile.getPath());
+                ciphertexzipfileout = new File(ciphertexzipfile.getPath().replace(".txt", ".jj"));
+                destinopathcom.setText(ciphertexzipfileout.getPath());
+                Platform.runLater(() -> texzip.setCenter(confcomp));
+                Platform.runLater(() -> texzip.setBottom(startcomp));
             }
         });
         Label dragfile = new Label("Arrastre el archivo");
@@ -180,8 +187,8 @@ public class MainGUI extends Application {
             @Override
             public void handle(ActionEvent a) {
                 Platform.runLater(() -> compresor.Comprimir(ciphertexzipfile, ciphertexzipfileout));
-                texzip.setBottom(choosefile);
-                texzip.setCenter(dragfile);
+                Platform.runLater(() -> texzip.setBottom(choosefile));
+                Platform.runLater(() -> texzip.setCenter(dragfile));
             }
         });
 
@@ -217,10 +224,9 @@ public class MainGUI extends Application {
                     List<File> l = db.getFiles();
                     if (l.get(l.size() - 1).getName().endsWith(".txt") || l.get(l.size() - 1).getName().endsWith(".jj")) {
                         ciphertexzipfile = l.get(l.size() - 1);
-                        //provicional
-                        //Platform.runLater(() -> compresor.Comprimir(ciphertexzipfile));
                         Platform.runLater(() -> origenpathcom.setText(ciphertexzipfile.getPath()));
-                        Platform.runLater(() -> destinopathcom.setText(ciphertexzipfile.getPath().replace(".txt", ".jj")));
+                        ciphertexzipfileout = new File(ciphertexzipfile.getPath().replace(".txt", ".jj"));
+                        Platform.runLater(() -> destinopathcom.setText(ciphertexzipfileout.getPath()));
                         Platform.runLater(() -> texzip.setCenter(confcomp));
                         Platform.runLater(() -> texzip.setBottom(startcomp));
                     }

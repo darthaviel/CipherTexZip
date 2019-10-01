@@ -11,7 +11,7 @@ public class BitByteAbstraction {
     public byte toByte(String str) {
         byte byt = 0;
         if (str.length() >= 8) {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 8; i++) {
                 if (str.charAt(i) == '1') {
                     byt = (byte) (byt | (1 << i));
                 }
