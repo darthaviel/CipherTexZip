@@ -179,7 +179,7 @@ public class MainGUI extends Application {
         startcomp.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent a) {
-                compresor.Comprimir(ciphertexzipfile, ciphertexzipfileout);
+                Platform.runLater(() -> compresor.Comprimir(ciphertexzipfile, ciphertexzipfileout));
                 texzip.setBottom(choosefile);
                 texzip.setCenter(dragfile);
             }
