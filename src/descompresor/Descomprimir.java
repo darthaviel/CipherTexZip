@@ -89,6 +89,7 @@ public class Descomprimir {
             FileOutputStream write = new FileOutputStream(out.getPath());
 
             while (!bits.isEmpty()) {
+                System.out.println(bits);
                 if (bits.charAt(0) == 0) {
                     control = huffmantree.HIJO_MAS_IZQ(control);
                 } else {

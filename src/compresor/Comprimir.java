@@ -195,13 +195,24 @@ public class Comprimir {
     }
 
     private void prepararBytes() {
-        int nbit = (4 + arbol.length() + huffmantextcode.length() + hash.length()) % 8;
-        arbol = arbol + bitbyteconv.intToExactBit(3, nbit) + huffmantextcode;
+        int nbit = 8-((4 + arbol.length() + huffmantextcode.length()) % 8);
+        System.out.println(arbol.length());
+        System.out.println(huffmantextcode.length());
+        System.out.println(nbit);
+        String snbit = "";
+        if(nbit == 8){
+            snbit = bitbyteconv.intToExactBit(3, 0);
+        }else{
+            snbit = bitbyteconv.intToExactBit(3, nbit);
+        }
+        arbol = arbol + snbit + huffmantextcode;
     }
 
     private void escribirArchivo() {
         try {
             FileOutputStream write = new FileOutputStream(guardar.getPath());
+            arbol = "0" + arbol;
+            System.out.println("arbol\n"+arbol);
             while (true) {
                 if (arbol.length() > 8) {
                     write.write(bitbyteconv.toByte(arbol.substring(0, 7)));

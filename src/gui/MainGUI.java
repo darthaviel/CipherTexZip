@@ -1,6 +1,7 @@
 package gui;
 
 import compresor.Comprimir;
+import descompresor.Descomprimir;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -50,7 +51,7 @@ import javafx.stage.Stage;
  * @author l
  */
 public class MainGUI extends Application {
-
+    
     private Stage stage;
     private TextArea text;
     private long textSize = 0;
@@ -59,23 +60,24 @@ public class MainGUI extends Application {
     File ciphertexzipfileout;
     //FileChooser fileChooser = new FileChooser();
     Comprimir compresor = new Comprimir();
+    Descomprimir descompresor = new Descomprimir();
     Tab jedit = new Tab("JEdit");
     VBox confcomp;
     VBox compsc;
     VBox comps;
     VBox compt;
-
+    
     TextField origenpathcom;
     TextField destinopathcom;
-
+    
     BorderPane texzip;
-
+    
     Button startcomp;
-
+    
     public void MainGUI() {
         launch();
     }
-
+    
     @Override
     public void start(Stage stage) throws Exception {
         this.stage = stage;
@@ -100,7 +102,7 @@ public class MainGUI extends Application {
                     return;
                 }
                 origenpathcom.setText(ciphertexzipfile.getPath());
-
+                
             }
         });
         Button choosedestinationcom = new Button("Navegar");
@@ -118,7 +120,7 @@ public class MainGUI extends Application {
             }
         }
         );
-
+        
         HBox origencom = new HBox(comprimirpath, origenpathcom, chooseorigencom);
         HBox destinocom = new HBox(comprimirguardarpath, destinopathcom, choosedestinationcom);
         origencom.setSpacing(15);
@@ -132,30 +134,30 @@ public class MainGUI extends Application {
         MenuItem comprimir = new MenuItem("Comprimir");
         MenuItem descomprimir = new MenuItem("Descomprimir");
         MenuItem salir = new MenuItem("Salir");
-
+        
         archivo.getItems().addAll(
                 comprimir,
                 descomprimir,
                 new SeparatorMenuItem(),
                 salir
         );
-
+        
         Menu ayuda = new Menu("Ayuda");
         MenuItem ayuda_ = new MenuItem("Ayuda");
         MenuItem acerca = new MenuItem("Acerca de");
-
+        
         ayuda.getItems().addAll(
                 ayuda_,
                 new SeparatorMenuItem(),
                 acerca
         );
-
+        
         MenuBar texzip_menubar = new MenuBar();
         texzip_menubar.getMenus().addAll(
                 archivo,
                 ayuda
         );
-
+        
         Button choosefile = new Button("Seleccionar archivo");
         choosefile.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -175,25 +177,32 @@ public class MainGUI extends Application {
             }
         });
         Label dragfile = new Label("Arrastre el archivo");
-
+        
         texzip.setTop(texzip_menubar);
         texzip.setBottom(choosefile);
         texzip.setCenter(dragfile);
         dragfile.setMinWidth(texzip.getWidth());
         dragfile.setMinHeight(texzip.getHeight());
-
+        
         Tab texziptab = new Tab("CipherTexZip");
         texziptab.setContent(texzip);
-
+        
         startcomp.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent a) {
-                Platform.runLater(() -> compresor.Comprimir(ciphertexzipfile, ciphertexzipfileout));
-                Platform.runLater(() -> texzip.setBottom(choosefile));
-                Platform.runLater(() -> texzip.setCenter(dragfile));
+                if (ciphertexzipfile.getPath().endsWith(".txt")) {
+                    Platform.runLater(() -> compresor.Comprimir(ciphertexzipfile, ciphertexzipfileout));
+                    Platform.runLater(() -> texzip.setBottom(choosefile));
+                    Platform.runLater(() -> texzip.setCenter(dragfile));
+                }
+                if(ciphertexzipfile.getPath().endsWith(".jj")){
+                    Platform.runLater(() -> descompresor.descomprimir(ciphertexzipfile, ciphertexzipfileout));
+                    Platform.runLater(() -> texzip.setBottom(choosefile));
+                    Platform.runLater(() -> texzip.setCenter(dragfile));
+                }
             }
         });
-
+        
         dragfile.setOnDragOver(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
                 System.out.println("over");
@@ -206,17 +215,17 @@ public class MainGUI extends Application {
             }
         }
         );
-
+        
         dragfile.setOnDragExited(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
                 System.out.println("exited");
                 dragfile.setTextFill(Color.BLACK);
-
+                
                 event.consume();
             }
         }
         );
-
+        
         dragfile.setOnDragDropped(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
                 System.out.println("dropped");
@@ -224,7 +233,7 @@ public class MainGUI extends Application {
                 System.out.println(db.hasFiles());
                 if (db.hasFiles()) {
                     List<File> l = db.getFiles();
-                    if (l.get(l.size() - 1).getName().endsWith(".txt") || l.get(l.size() - 1).getName().endsWith(".jj")) {
+                    if (l.get(l.size() - 1).getName().endsWith(".txt")) {
                         ciphertexzipfile = l.get(l.size() - 1);
                         Platform.runLater(() -> origenpathcom.setText(ciphertexzipfile.getPath()));
                         ciphertexzipfileout = new File(ciphertexzipfile.getPath().replace(".txt", ".jj"));
@@ -232,13 +241,21 @@ public class MainGUI extends Application {
                         Platform.runLater(() -> texzip.setCenter(confcomp));
                         Platform.runLater(() -> texzip.setBottom(startcomp));
                     }
+                    if (l.get(l.size() - 1).getName().endsWith(".jj")) {
+                        ciphertexzipfile = l.get(l.size() - 1);
+                        Platform.runLater(() -> origenpathcom.setText(ciphertexzipfile.getPath()));
+                        ciphertexzipfileout = new File(ciphertexzipfile.getPath().replace(".jj", ".txt"));
+                        Platform.runLater(() -> destinopathcom.setText(ciphertexzipfileout.getPath()));
+                        Platform.runLater(() -> texzip.setCenter(confcomp));
+                        Platform.runLater(() -> texzip.setBottom(startcomp));
+                    }
                 }
-
+                
                 event.setDropCompleted(true);
                 event.consume();
             }
         });
-
+        
         dragfile.setOnDragDone(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
                 System.out.println("lets see");
@@ -249,14 +266,14 @@ public class MainGUI extends Application {
 
         //JEdit
         Tab jedit = new Tab("JEdit");
-
+        
         Menu fileMenu = new Menu("Archivo");
         MenuItem newMenuItem = new MenuItem("Nuevo");
         MenuItem openMenuItem = new MenuItem("Abrir...");
         MenuItem saveMenuItem = new MenuItem("Guardar");
         MenuItem saveAsMenuItem = new MenuItem("Guardar como..");
         MenuItem exitMenuItem = new MenuItem("Salir");
-
+        
         fileMenu.getItems().addAll(
                 newMenuItem,
                 openMenuItem,
@@ -265,7 +282,7 @@ public class MainGUI extends Application {
                 new SeparatorMenuItem(),
                 exitMenuItem
         );
-
+        
         Menu editMenu = new Menu("Editar");
         MenuItem undoMenuItem = new MenuItem("Deshacer");
         MenuItem cutMenuItem = new MenuItem("Cortar");
@@ -273,7 +290,7 @@ public class MainGUI extends Application {
         MenuItem pasteMenuItem = new MenuItem("Pagar");
         MenuItem deleteMenuItem = new MenuItem("Borrar");
         MenuItem selectAllMenuItem = new MenuItem("Seleccionar todo");
-
+        
         editMenu.getItems().addAll(
                 undoMenuItem,
                 new SeparatorMenuItem(),
@@ -284,117 +301,117 @@ public class MainGUI extends Application {
                 new SeparatorMenuItem(),
                 selectAllMenuItem
         );
-
+        
         Menu helpMenu = new Menu("Ayuda");
         MenuItem aboutMenuItem = new MenuItem("Acerca de");
-
+        
         helpMenu.getItems().addAll(
                 aboutMenuItem
         );
-
+        
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(
                 fileMenu,
                 editMenu,
                 helpMenu
         );
-
+        
         menuBar.prefWidthProperty().bind(stage.widthProperty());
-
+        
         text = new TextArea();
         text.setPrefRowCount(10);
         text.setPrefColumnCount(100);
         text.setWrapText(true);
         text.setPrefWidth(150);
-
+        
         BorderPane rootjedit = new BorderPane();
         rootjedit.setTop(menuBar);
-
+        
         undoMenuItem.setOnAction(event -> {
             text.undo();
         });
-
+        
         copyMenuItem.setOnAction(event -> {
             text.copy();
         });
-
+        
         cutMenuItem.setOnAction(event -> {
             text.cut();
         });
-
+        
         pasteMenuItem.setOnAction(event -> {
             text.paste();
         });
-
+        
         selectAllMenuItem.setOnAction(event -> {
             text.selectAll();
         });
-
+        
         deleteMenuItem.setOnAction(event -> {
             IndexRange selection = text.getSelection();
             text.deleteText(selection);
         });
-
+        
         aboutMenuItem.setOnAction(event -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Acerca de JEdit");
             alert.setHeaderText("JEdit");
             alert.setContentText("JEdit V1 \nElaborado con JavaFX");
-
+            
             alert.showAndWait();
         });
-
+        
         exitMenuItem.setOnAction(actionEvent -> Platform.exit());
-
+        
         newMenuItem.setOnAction((event) -> {
-
+            
             if (!checkTextStatus()) {
                 return;
             }
-
+            
             text.setText("");
             jedit.setText("JEdit");
             //primary.setTitle("JEdit");
             textSize = 0;
             mainFile = null;
         });
-
+        
         saveMenuItem.setOnAction((event) -> {
-
+            
             save();
-
+            
         });
-
+        
         saveAsMenuItem.setOnAction((event) -> {
-
+            
             saveAs();
-
+            
         });
-
+        
         openMenuItem.setOnAction((event) -> {
-
+            
             if (!checkTextStatus()) {
                 return;
             }
-
+            
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Abrir archivo");
             fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT", "*.txt"));
-
+            
             File file = fileChooser.showOpenDialog(stage);
-
+            
             if (file == null) {
                 return;
             }
-
+            
             mainFile = file;
-
+            
             jedit.setText("JEdit | " + file.getName());
             //primary.setTitle("JEdit | " + file.getName());
-            try ( BufferedReader br = new BufferedReader(new FileReader(file))) {
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
                 StringBuilder sb = new StringBuilder();
                 String line = br.readLine();
-
+                
                 while (line != null) {
                     sb.append(line);
                     sb.append(System.lineSeparator());
@@ -404,28 +421,28 @@ public class MainGUI extends Application {
                 text.setText(everything);
                 textSize = text.getText().length();
                 text.positionCaret((int) textSize);
-
+                
             } catch (FileNotFoundException ex) {
                 ex.printStackTrace();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-
+            
         });
         rootjedit.setCenter(text);
-
+        
         newMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
         openMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         saveMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
         exitMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
-
+        
         undoMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN));
         cutMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
         copyMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN));
         pasteMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
         selectAllMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.A, KeyCombination.CONTROL_DOWN));
         deleteMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
-
+        
         jedit.setContent(rootjedit);
 
         //union
@@ -445,17 +462,17 @@ public class MainGUI extends Application {
             saveFile(mainFile);
         }
     }
-
+    
     private void saveAs() {
-
+        
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
         fileChooser.getExtensionFilters().add(extFilter);
-
+        
         fileChooser.setTitle("Guardar archivo");
-
+        
         File file = fileChooser.showSaveDialog(stage);
-
+        
         if (file == null) {
             return;
         }
@@ -463,49 +480,49 @@ public class MainGUI extends Application {
             file = new File(file.getPath() + ".txt");
         }
         mainFile = file;
-
+        
         saveFile(file);
     }
-
+    
     private void saveFile(File file) {
         jedit.setText("JEdit | " + file.getName());
         //primary.setTitle("JEdit | " + file.getName());
 
         textSize = text.getText().length();
-
-        try ( Writer writer = new BufferedWriter(new OutputStreamWriter(
+        
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(file), "utf-8"))) {
-
+            
             String[] split = text.getText().split("\n");
             for (String string : split) {
                 writer.append(string);
                 writer.append(System.lineSeparator());
             }
-
+            
         } catch (UnsupportedEncodingException ex) {
             ex.printStackTrace();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
-
+    
     private boolean checkTextStatus() {
         if (textSize != text.getText().length()) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
-
+            
             alert.setTitle("JEdit");
             alert.setHeaderText("Desea guardar los cambios ?");
-
+            
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.YES) {
                 save();
-
+                
             } else if (result.get() == ButtonType.CANCEL) {
                 return false;
             }
-
+            
         }
         return true;
     }
-
+    
 }
