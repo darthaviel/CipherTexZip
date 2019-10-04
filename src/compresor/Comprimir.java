@@ -188,7 +188,7 @@ public class Comprimir {
             bittree = bittree + arbol.charAt(i);
             if (arbol.charAt(i) == '1') {
                 i++;
-                bittree = bitbyteconv.toBitStr((byte) arbol.charAt(i));
+                bittree = bittree + bitbyteconv.toBitStr((byte) arbol.charAt(i));
             }
         }
         arbol = bittree;
@@ -222,7 +222,7 @@ public class Comprimir {
     }
 
     private void limpiar() {
-        organizador.VACIA();
+        organizador.ANULA();
         huffmantree.ANULA();
         text = new char[0];
         hash = "";
